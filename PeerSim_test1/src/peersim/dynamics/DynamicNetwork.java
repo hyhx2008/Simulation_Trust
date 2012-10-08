@@ -158,6 +158,7 @@ protected void remove(int n)
  */
 public DynamicNetwork(String prefix)
 {
+	//System.out.println(prefix);
 	add = Configuration.getDouble(prefix + "." + PAR_ADD);
 	substitute = Configuration.contains(prefix + "." + PAR_SUBST);
 	Object[] tmp = Configuration.getInstanceArray(prefix + "." + PAR_INIT);

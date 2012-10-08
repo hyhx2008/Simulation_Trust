@@ -130,7 +130,7 @@ public static void reset() {
 	{
 		System.err.println(
 		"Network: no node defined, using GeneralNode");
-		tmp = new GeneralNode("");
+		tmp = new GeneralNode("");  //构造node原型用于clone，并读取所有protocol协议，为其建立pid
 	}
 	else
 	{

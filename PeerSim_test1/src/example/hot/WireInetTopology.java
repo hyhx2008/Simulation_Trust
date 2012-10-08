@@ -106,7 +106,7 @@ public class WireInetTopology extends WireGraph {
             }
 
             hops[i] = hops[candidate_index] + 1;
-            g.setEdge(i, candidate_index);
+            g.setEdge(i, candidate_index);   
         }
     }
 

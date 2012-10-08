@@ -113,6 +113,7 @@ static {
 */
 public CDScheduler(String n) {
 
+	//System.out.println(n);
 	String[] prots=Configuration.getString(n+"."+PAR_PROTOCOL).split("\\s");
 	pid = new int[prots.length];
 	nce = new NextCycleEvent[prots.length];

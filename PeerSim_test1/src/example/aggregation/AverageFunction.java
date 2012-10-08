@@ -45,7 +45,7 @@ public class AverageFunction extends SingleValueHolder implements CDProtocol {
      *            the component prefix declared in the configuration file.
      */
     public AverageFunction(String prefix) {
-        super(prefix);
+    	super(prefix);
     }
 
     /**

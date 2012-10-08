@@ -83,6 +83,7 @@ public FullNextCycle(String prefix) {
 	for(int i=0; i<names.length; ++i)
 	{
 		protSchedules[i] = new Scheduler(names[i]);
+//		System.out.println(names[i]);
 	}
 }
 

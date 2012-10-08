@@ -146,7 +146,7 @@ private static String[] loadControls()
 		controls = new Control[names.length + 1];
 		ctrlSchedules = new Scheduler[names.length + 1];
 		// calling with a prefix that cannot exist
-		controls[names.length] = new FullNextCycle(" ");
+		controls[names.length] = new FullNextCycle(" "); //为所有protocol建立scheduler，并将其添加为最后一个control；读取shuffle
 		ctrlSchedules[names.length] = new Scheduler(" ");
 	}
 	for (int i = 0; i < names.length; ++i) {
@@ -188,12 +188,12 @@ public static final void nextExperiment()
 	System.err.println("CDSimulator: resetting");
 	controls = null;
 	ctrlSchedules = null;
-	Network.reset();
+	Network.reset(); // 建立新节点，并读取配置文件中的protocol信息，存贮protocol名字，分配pid
 	System.err.println("CDSimulator: running initializers");
 	runInitializers();
 
 	// main cycle
-	loadControls();
+	loadControls(); // 建立所有control,并为其设置scheduler, 包括protocol中没周期的nextcycle()
 
 	System.err.println("CDSimulator: starting simulation");
 	for (int i = 0; i < cycles; ++i) {
