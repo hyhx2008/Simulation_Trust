@@ -277,7 +277,7 @@ private static boolean executeNext() {
 		return true;
 	}
 	
-	CommonState.setTime(time);
+	CommonState.setTime(time); // 更新时间
 	int pid = ev.pid;
 	if (ev.node == null)
 	{

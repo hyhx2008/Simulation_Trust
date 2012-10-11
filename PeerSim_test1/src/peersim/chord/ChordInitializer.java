@@ -26,6 +26,9 @@ public class ChordInitializer implements NodeInitializer {
 	}
 
 	public void join(Node myNode) {
+		
+		Flag.set_Sort_Flag();
+		
 		Random generator = new Random();
 		cp.predecessor = null;
 		// search a node to join
@@ -34,7 +37,11 @@ public class ChordInitializer implements NodeInitializer {
 			n = Network.get(generator.nextInt(Network.size()));
 		} while (n == null || n.isUp() == false);
 		cp.m = ((ChordProtocol) n.getProtocol(pid)).m;
-		cp.chordId = new BigInteger(cp.m, CommonState.r);
+		cp.chordId = new BigInteger(cp.m, CommonState.r); /// ???????????IdFirst 更新 Network.sort();
+		//添加 修改
+		cp.maxChordId = CreateNw.maxChordId;
+		//end
+		System.out.println(cp.maxChordId.toString());
 		ChordProtocol cpRemote = (ChordProtocol) n.getProtocol(pid);
 
 		Node successor = cpRemote.find_successor(cp.chordId);   //find_successor 只能返回当前node n的finger table里和id最近的一个node 有问题？？？？

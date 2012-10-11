@@ -65,9 +65,10 @@ public class MessageCounterObserver implements Control {
 			}
 			cp.emptyLookupMessage();
 		}
+		
 		double media = meanCalculator(hopCounters);
 		if (media > 0)
-			System.out.println("Mean:  " + media + " Max Value: " + max
+			System.out.println("Hops-- Mean: " + media + " Max Value: " + max
 					+ " Min Value: " + min + " # Observations: "
 					+ hopCounters.size());
 		System.out.println("	 # Stabilizations: " + totalStab + " # Failures: "
@@ -98,11 +99,16 @@ public class MessageCounterObserver implements Control {
 	}
 
 	private int minArray(int[] array, int dim) {
-		int min = 0;
+		//Ô­Îª
+		//int min = 0;
+		//ÐÞ¸Ä
+		int min = Integer.MAX_VALUE;
+		//end
 		for (int j = 0; j < dim; j++) {
 			if (array[j] < min)
 				min = array[j];
 		}
+		
 		return min;
 	}
 }

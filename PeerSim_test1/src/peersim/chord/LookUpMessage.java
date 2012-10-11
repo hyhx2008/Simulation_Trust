@@ -9,7 +9,7 @@ public class LookUpMessage implements ChordMessage {
 
 	private BigInteger targetId;
 
-	private int hopCounter = -1;
+	private int hopCounter = 0;
 
 	public LookUpMessage(Node sender, BigInteger targetId) {
 		this.sender = sender;

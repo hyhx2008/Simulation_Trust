@@ -40,8 +40,8 @@ control.observer MessageCounterObserver
 
 control.dnet DynamicNetwork
 {
-	add 20
-	add -25
+#	add 20         
+	add -25               #Á½¸öadd??¸ãĞ¦ÁË°É
 	minsize 3000
 	maxsize 7000
 	step 100000
