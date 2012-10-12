@@ -399,7 +399,13 @@ public class ChordProtocol implements EDProtocol {
 		}
 		
 		if (nodeOne >= (nodeTwo - 1)) 
+		{
+			//Ìí¼Ó ÐÞ¸Ä
+			while ((!Network.get(nodeOne).isUp())||(Network.get(nodeOne) == null)) nodeOne = (nodeOne+1) % Network.size();
+			//end
 			return Network.get(nodeOne);
+		}
+			
 		
 		int middle = (nodeOne + nodeTwo) / 2;
 		
