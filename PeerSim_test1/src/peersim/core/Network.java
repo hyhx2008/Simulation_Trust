@@ -244,6 +244,9 @@ public static Node remove() {
 */
 public static Node remove(int i) {
 	
+	//test	
+	System.out.println("remove"+i);
+	
 	if( i<0 || i>=len ) throw new IndexOutOfBoundsException(""+i);
 	swap(i,len-1);
 	return remove();

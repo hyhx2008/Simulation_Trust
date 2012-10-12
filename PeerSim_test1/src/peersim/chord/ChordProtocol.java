@@ -401,7 +401,7 @@ public class ChordProtocol implements EDProtocol {
 		if (nodeOne >= (nodeTwo - 1)) 
 		{
 			//添加 修改
-			while ((!Network.get(nodeOne).isUp())||(Network.get(nodeOne) == null)) nodeOne = (nodeOne+1) % Network.size();
+//			while ((!Network.get(nodeOne).isUp())||(Network.get(nodeOne) == null)) nodeOne = (nodeOne+1) % Network.size();
 			//end
 			return Network.get(nodeOne);
 		}
@@ -432,12 +432,20 @@ public class ChordProtocol implements EDProtocol {
 			
 			if (id.compareTo(newId) == 0
 					|| ((id.compareTo(newId) == 1) && (id.compareTo(highId) == -1))) {
-				return Network.get(middle);
+				//原为
+				//return Network.get(middle);
+				//修改
+				return Network.get(middle+1);
+				//end
 			}
 			
 			if ((id.compareTo(newId) == -1) && (id.compareTo(lowId) == 1)) {
 				if (middle > 0)
-					return Network.get(middle - 1);
+					//原为
+					//return Network.get(middle - 1);
+					//修改
+					return Network.get(middle);
+					//end
 				else
 					return Network.get(0);
 			}

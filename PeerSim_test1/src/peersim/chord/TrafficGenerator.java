@@ -41,6 +41,9 @@ public class TrafficGenerator implements Control {
 				|| target.isUp() == false);
 		LookUpMessage message = new LookUpMessage(sender,
 				((ChordProtocol) target.getProtocol(pid)).chordId);
+		//test
+//		System.out.println("from:"+((ChordProtocol) sender.getProtocol(pid)).chordId+" to:"+((ChordProtocol) target.getProtocol(pid)).chordId);
+		
 		EDSimulator.add(10, message, sender, pid);
 		return false;
 	}

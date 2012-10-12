@@ -69,6 +69,13 @@ public class CreateNw implements Control {
 		}
 		NodeComparator nc = new NodeComparator(pid); 
 		Network.sort(nc);        //根据chordID 排序，顺序与Network中node数组下标一致
+		
+//test		
+		for (int i=0;i<Network.size();++i)
+		{
+			System.out.println(i+": "+((ChordProtocol)Network.get(i).getProtocol(pid)).chordId);
+		}
+		
 		createFingerTable();
 		return false;
 	}
@@ -102,12 +109,20 @@ public class CreateNw implements Control {
 			
 			if (id.compareTo(newId) == 0
 					|| ((id.compareTo(newId) == 1) && (id.compareTo(highId) == -1))) {
-				return Network.get(middle);
+				//原为
+				//return Network.get(middle);
+				//修改
+				return Network.get(middle+1);
+				//end
 			}
 			
 			if ((id.compareTo(newId) == -1) && (id.compareTo(lowId) == 1)) {
 				if (middle > 0)
-					return Network.get(middle - 1);
+					//原为
+					//return Network.get(middle - 1);
+					//修改
+					return Network.get(middle);
+					//end
 				else
 					return Network.get(0);
 			}
