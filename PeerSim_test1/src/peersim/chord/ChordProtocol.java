@@ -100,7 +100,7 @@ public class ChordProtocol implements EDProtocol {
 								.getProtocol(p.pid)).chordId) < 0)) {
 					fails++;
 				}*/
-				if (dest.getID() == successorList[0].getID()           //为什么要有这个限制 ??
+				if (dest.getID() == successorList[0].getID()           //为什么要有这个限制 ?? 
 						&& (idInab(target,this.chordId, ((ChordProtocol) dest.getProtocol(p.pid)).chordId))) {
 					fails++;
 				}
@@ -188,11 +188,20 @@ public class ChordProtocol implements EDProtocol {
 		while (searching) {
 			try {
 				Node node = successorList[varSuccList];
+				if (varSuccList >= 2) 
+				{
+					if (successorList[varSuccList-1].isUp())
+					{
+						int hhh = 0;
+					}
+					
+				}
 				varSuccList++;
 				successorList[0] = node;
-				if (successorList[0] == null
-						|| successorList[0].isUp() == false) {
-					if (varSuccList >= succLSize - 1) {
+				if ((successorList[0] == null) || (successorList[0].isUp() == false))
+				{
+					if (varSuccList >= succLSize - 1) 
+					{
 						searching = false;
 						varSuccList = 0;         // successorList中没有一个活动的节点！！ 怎么办？？？？？？？？
 					} else
@@ -200,6 +209,9 @@ public class ChordProtocol implements EDProtocol {
 				}
 				updateSuccessorList();           // 更新successorList， 将新直接后继successorList【0】中的successorList拷贝作为新successorList
 				searching = false;
+				//添加 修改
+				varSuccList = 0;
+				//end
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
@@ -236,8 +248,10 @@ public class ChordProtocol implements EDProtocol {
 			if (successorList[0] == null || successorList[0].isUp() == false) { // 至少保证后继的正确性，chord才能正确工作
 				updateSuccessor();
 			}
-			if (idInab(id, this.chordId, ((ChordProtocol) successorList[0]
-					.getProtocol(p.pid)).chordId)) {
+			//修改 条件中添加了(id.compareTo(((ChordProtocol) successorList[0].getProtocol(p.pid)).chordId) == 0)
+			if ((idInab(id, this.chordId, ((ChordProtocol) successorList[0]
+					.getProtocol(p.pid)).chordId))||
+					(id.compareTo(((ChordProtocol) successorList[0].getProtocol(p.pid)).chordId) == 0)) {
 				return successorList[0];                          //当前节点为目标id的前驱，即目标id为当前节点的后继，返回后继  ????为什么要加这句,如果条件成立,必然查找失败?????????????????
 			} else {
 				Node tmp = closest_preceding_node(id);            //返回fingertable中距离目标id最近但不大于目标id的节点
@@ -253,10 +267,14 @@ public class ChordProtocol implements EDProtocol {
 	private Node closest_preceding_node(BigInteger id) {
 		for (int i = m; i > 0; i--) {  // 下标   m-1 downto 0
 			try {
+				/*原为*/
 				if (fingerTable[i - 1] == null
 						|| fingerTable[i - 1].isUp() == false) {   // 该finger不在线
 					continue;    
 				}
+				//由于上面的判断，该函数返回的fingertable项一定是在线的！！！！！！
+				//修改
+				//end
 				BigInteger fingerId = ((ChordProtocol) (fingerTable[i - 1]
 						.getProtocol(p.pid))).chordId;
 				if ((idInab(fingerId, this.chordId, id))  // this.chordId < fingerId <= id
@@ -391,7 +409,7 @@ public class ChordProtocol implements EDProtocol {
 	//添加 修改
 	public Node findId(BigInteger id, int nodeOne, int nodeTwo) {  //二分法查找，需保证chordId的顺序和index的顺序一致
 		
-//		if (Flag.sort_flag == 1)
+		if (Flag.sort_flag == 1)
 		{
 			NodeComparator nc = new NodeComparator(p.pid); 
 			Network.sort(nc);        //根据chordID 排序，顺序与Network中node数组下标一致

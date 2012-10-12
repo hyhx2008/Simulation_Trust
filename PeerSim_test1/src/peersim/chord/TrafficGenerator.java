@@ -30,7 +30,11 @@ public class TrafficGenerator implements Control {
 	 * @see peersim.core.Control#execute()
 	 */
 	public boolean execute() {
-		int size = Network.size();
+		//Ô­Îª
+		//int size = Network.size();
+		//ÐÞ¸Ä
+		int size = Network.dy_size;
+		//end
 		Node sender, target;
 		int i = 0;
 		do {

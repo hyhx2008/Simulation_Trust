@@ -18,6 +18,7 @@
 		
 package peersim.core;
 
+import peersim.chord.*;
 import peersim.config.Configuration;
 import java.util.Comparator;
 import java.util.Arrays;
@@ -91,6 +92,7 @@ static Node[] node = null;
 */
 private static int len;
 
+public static int dy_size;
 /**
 * The prototype node which is used to populate the simulation via cloning.
 * After all the nodes have been cloned, {@link Control} components can be
@@ -121,7 +123,7 @@ public static void reset() {
 	int maxlen = Configuration.getInt(PAR_MAXSIZE,len);
 	if( maxlen < len ) throw new IllegalArgumentException(
 			PAR_MAXSIZE+" is less than "+PAR_SIZE);
-
+	dy_size = len;
 	node = new Node[maxlen];
 	
 	// creating prototype node
@@ -245,7 +247,7 @@ public static Node remove() {
 public static Node remove(int i) {
 	
 	//test	
-	System.out.println("remove"+i);
+	//System.out.println("remove"+i+" chordId:"+((ChordProtocol)Network.get(i).getProtocol(CreateNw.pid)).chordId);
 	
 	if( i<0 || i>=len ) throw new IndexOutOfBoundsException(""+i);
 	swap(i,len-1);

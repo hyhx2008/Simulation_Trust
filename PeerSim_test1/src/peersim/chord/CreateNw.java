@@ -13,7 +13,7 @@ import java.math.*;
  */
 public class CreateNw implements Control {
 
-	private int pid = 0;
+	public static int pid = 0;
 
 	private static final String PAR_IDLENGTH = "idLength";
 
@@ -70,12 +70,13 @@ public class CreateNw implements Control {
 		NodeComparator nc = new NodeComparator(pid); 
 		Network.sort(nc);        //根据chordID 排序，顺序与Network中node数组下标一致
 		
-//test		
+//test	
+		/*	
 		for (int i=0;i<Network.size();++i)
 		{
 			System.out.println(i+": "+((ChordProtocol)Network.get(i).getProtocol(pid)).chordId);
 		}
-		
+		*/
 		createFingerTable();
 		return false;
 	}

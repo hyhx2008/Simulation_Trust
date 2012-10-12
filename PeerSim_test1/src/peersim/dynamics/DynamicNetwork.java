@@ -205,7 +205,9 @@ public final boolean execute()
 			toadd = toremove;
 	}
 	remove(toremove);
+	Network.dy_size -= toremove;
 	add(toadd);
+	Network.dy_size += toadd;
 	return false;
 }
 
