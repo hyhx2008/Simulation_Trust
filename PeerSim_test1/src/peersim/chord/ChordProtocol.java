@@ -3,6 +3,7 @@
  */
 package peersim.chord;
 
+import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
 import peersim.core.Network;
 import peersim.core.Node;
@@ -14,7 +15,7 @@ import java.math.*;
  * @author Andrea
  * 
  */
-public class ChordProtocol implements EDProtocol {
+public class ChordProtocol implements CDProtocol,EDProtocol {
 
 	private static final String PAR_TRANSPORT = "transport";
 
@@ -62,6 +63,14 @@ public class ChordProtocol implements EDProtocol {
 		p.tid = Configuration.getPid(prefix + "." + PAR_TRANSPORT);
 	}
 
+	//添加 修改
+	public void nextCycle(Node node, int protocolID) {   //将stabilize和fixfinger变为周期性动作
+//		stabilize(node);
+		stabilizations++; //稳定化次数
+		fixFingers_new();
+	}
+	//end
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -154,7 +163,7 @@ public class ChordProtocol implements EDProtocol {
 				((ChordProtocol) successorList[0].getProtocol(p.pid))
 						.notify(myNode);
 			}
-			updateSuccessorList();
+//修改			updateSuccessorList();
 		} catch (Exception e1) {
 			e1.printStackTrace();
 			updateSuccessor();
@@ -188,14 +197,6 @@ public class ChordProtocol implements EDProtocol {
 		while (searching) {
 			try {
 				Node node = successorList[varSuccList];
-				if (varSuccList >= 2) 
-				{
-					if (successorList[varSuccList-1].isUp())
-					{
-						int hhh = 0;
-					}
-					
-				}
 				varSuccList++;
 				successorList[0] = node;
 				if ((successorList[0] == null) || (successorList[0].isUp() == false))
@@ -393,7 +394,42 @@ public class ChordProtocol implements EDProtocol {
 		} while (fingerTable[next] == null || fingerTable[next].isUp() == false);
 		next++;
 	}
-
+	
+	//添加 修改
+	public void fixFingers_new() {    // 所有结点修正其第next项finger
+		if (next >= m - 1)
+			next = 0;
+		if (fingerTable[next] != null && fingerTable[next].isUp()) {  //该fingertable项正常
+			next++;
+			return;
+		}//若next项不正常
+		BigInteger base;
+		if (next == 0)
+			base = BigInteger.ONE;
+		else {
+			base = BigInteger.valueOf(2);
+			for (int exp = 1; exp < next; exp++) {
+				base = base.multiply(BigInteger.valueOf(2));  //base = 2^next
+			}
+		}
+		BigInteger pot = this.chordId.add(base);
+		BigInteger idFirst = ((ChordProtocol) Network.get(0).getProtocol(p.pid)).chordId;
+		BigInteger idLast = ((ChordProtocol) Network.get(Network.size() - 1)
+				.getProtocol(p.pid)).chordId;
+		
+		if (pot.compareTo(maxChordId) >= 0)
+		{
+			pot = (pot.mod(maxChordId));
+		}
+		
+		do {
+			fingerTable[next] = findId(pot, 0, Network.size() - 1);
+			pot = pot.subtract(BigInteger.ONE);    // 当上一句找到的结点不在线时，pot加1后再找一次。  这里将非常耗时！！！！！
+		} while (fingerTable[next] == null || fingerTable[next].isUp() == false);
+		next++;
+	}
+	//end
+	
 	/**
 	 */
 	public void emptyLookupMessage() {
@@ -419,7 +455,7 @@ public class ChordProtocol implements EDProtocol {
 		if (nodeOne >= (nodeTwo - 1)) 
 		{
 			//添加 修改
-//			while ((!Network.get(nodeOne).isUp())||(Network.get(nodeOne) == null)) nodeOne = (nodeOne+1) % Network.size();
+			while ((!Network.get(nodeOne).isUp())||(Network.get(nodeOne) == null)) nodeOne = (nodeOne+1) % Network.size();
 			//end
 			return Network.get(nodeOne);
 		}
@@ -453,6 +489,7 @@ public class ChordProtocol implements EDProtocol {
 				//原为
 				//return Network.get(middle);
 				//修改
+				while ((!Network.get(middle+1).isUp())||(Network.get(middle+1) == null)) middle = (middle+1) % Network.size();
 				return Network.get(middle+1);
 				//end
 			}
@@ -462,8 +499,10 @@ public class ChordProtocol implements EDProtocol {
 					//原为
 					//return Network.get(middle - 1);
 					//修改
+				{
+					while ((!Network.get(middle).isUp())||(Network.get(middle) == null)) middle = (middle+1) % Network.size();
 					return Network.get(middle);
-					//end
+				}	//end
 				else
 					return Network.get(0);
 			}
@@ -481,4 +520,5 @@ public class ChordProtocol implements EDProtocol {
 		}
 	}
 	//end
+
 }

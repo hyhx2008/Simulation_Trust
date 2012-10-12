@@ -1,12 +1,17 @@
 # PEERSIM CHORD
+SIZE 1000
+
+# parameters of periodic execution
+CYCLES 100
+CYCLE SIZE*10
 
 # random.seed 1234567890
-simulation.endtime 10^6
-simulation.logtime 10^6
+simulation.endtime CYCLE*CYCLES
+simulation.logtime CYCLE*10
 
 simulation.experiments 1
 
-network.size 1000
+network.size SIZE
 
 protocol.tr UniformRandomTransport
 {
@@ -16,6 +21,7 @@ protocol.tr UniformRandomTransport
 
 protocol.my ChordProtocol
 {
+	step CYCLE/10
 	transport tr
 }
 
@@ -31,6 +37,10 @@ init.create CreateNw
 	idLength 128
 	succListSize 12
 }
+
+init.sch CDScheduler
+init.sch.protocol my
+init.sch.randstart
 
 control.observer MessageCounterObserver
 {

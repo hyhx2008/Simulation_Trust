@@ -18,6 +18,7 @@
 
 package peersim.dynamics;
 
+import peersim.chord.Flag;
 import peersim.config.Configuration;
 import peersim.core.*;
 
@@ -208,6 +209,7 @@ public final boolean execute()
 	Network.dy_size -= toremove;
 	add(toadd);
 	Network.dy_size += toadd;
+	Flag.set_Sort_Flag();
 	return false;
 }
 
