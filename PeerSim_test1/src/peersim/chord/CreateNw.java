@@ -62,6 +62,17 @@ public class CreateNw implements Control {
 			cp.varSuccList = 0;
 			cp.chordId = new BigInteger(idLength, CommonState.r);
 			//添加 修改
+			
+			int random = (-CommonState.r.nextInt())%10;
+			if (random < 0) random = -random;
+			if (random < (Flag.malicious_node_rate*10))
+			{
+				cp.drop_message_rate = Flag.drop_packet_rate;
+			}else
+			{
+				cp.drop_message_rate = 0;
+			}
+			
 			cp.maxChordId = maxChordId;
 			//end
 			cp.fingerTable = new Node[idLength];
@@ -160,6 +171,12 @@ public class CreateNw implements Control {
 					cp.successorList[a] = Network.get((a+i+1)%Network.size()); 
 					//end
 				}
+				
+				if (!cp.trust.containsKey(((ChordProtocol)(cp.successorList[a].getProtocol(pid))).chordId))
+				{
+					cp.trust.put(((ChordProtocol)(cp.successorList[a].getProtocol(pid))).chordId, new Trust());
+				}
+				
 			} //建立successor List
 			
 			if (i > 0)  // 建立  predecessor
@@ -200,6 +217,11 @@ public class CreateNw implements Control {
 				//end
 				
 				cp.fingerTable[j] = findId(pot, 0, Network.size() - 1);  // 二分法查找
+				
+				if (!cp.trust.containsKey(((ChordProtocol)(cp.fingerTable[j].getProtocol(pid))).chordId))
+				{
+					cp.trust.put(((ChordProtocol)(cp.fingerTable[j].getProtocol(pid))).chordId, new Trust());
+				}
 			}
 		}
 	}

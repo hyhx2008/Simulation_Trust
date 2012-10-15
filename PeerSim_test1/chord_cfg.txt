@@ -2,12 +2,12 @@
 SIZE 1000
 
 # parameters of periodic execution
-CYCLES 100
+CYCLES 40
 CYCLE SIZE*10
 
 # random.seed 1234567890
 simulation.endtime CYCLE*CYCLES
-simulation.logtime CYCLE*10
+simulation.logtime CYCLE*CYCLES
 
 simulation.experiments 1
 
@@ -28,7 +28,7 @@ protocol.my ChordProtocol
 control.traffic TrafficGenerator
 {
 	protocol my
-	step 100
+	step 50
 }
 
 init.create CreateNw 
@@ -45,18 +45,18 @@ init.sch.randstart
 control.observer MessageCounterObserver
 {
 	protocol my
-	step 90000
+	step 10000
 }
 
-control.dnet DynamicNetwork
-{
+#control.dnet DynamicNetwork
+#{
 #	add 20         
-	add -50            #两个add??搞笑了吧
-	minsize 100
-	maxsize 1500
-	step 100000
-	init.0 ChordInitializer
-	{      
-		protocol my
-	}
-}
+#	add -50            #两个add??搞笑了吧
+#	minsize 100
+#	maxsize 1500
+#	step 100000
+#	init.0 ChordInitializer
+#	{      
+#		protocol my
+#	}
+#}

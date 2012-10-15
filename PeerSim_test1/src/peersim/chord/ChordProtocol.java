@@ -5,11 +5,13 @@ package peersim.chord;
 
 import peersim.cdsim.CDProtocol;
 import peersim.config.Configuration;
+import peersim.core.CommonState;
 import peersim.core.Network;
 import peersim.core.Node;
 import peersim.edsim.EDProtocol;
 import peersim.transport.Transport;
 import java.math.*;
+import java.util.Hashtable;
 
 /**
  * @author Andrea
@@ -30,13 +32,17 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 	public Node[] fingerTable;
 
 	public Node[] successorList;
-
+	
 	public BigInteger chordId;
 	//添加 修改
+	Hashtable<BigInteger,Trust> trust;
+
+	public double drop_message_rate;
+	
 	public BigInteger maxChordId; 
 	//end
 	public int m;
-
+	
 	public int succLSize;
 
 	public String prefix;
@@ -61,6 +67,7 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 		lookupMessage[0] = 0;
 		p = new Parameters();
 		p.tid = Configuration.getPid(prefix + "." + PAR_TRANSPORT);
+		trust = new Hashtable<BigInteger,Trust>();
 	}
 
 	//添加 修改
@@ -79,6 +86,7 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 	 */
 	public void processEvent(Node node, int pid, Object event) {
 		// processare le richieste a seconda della routing table del nodo
+		boolean flag = false;
 		p.pid = pid;
 		currentNode = node.getIndex();
 		if (event.getClass() == LookUpMessage.class) {
@@ -90,6 +98,7 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 			if (target == ((ChordProtocol) node.getProtocol(pid)).chordId) {  // message 到达目标节点
 				// mandare mess di tipo final
 				t.send(node, n, new FinalMessage(message.getHopCounter()), pid);
+				flag = true;
 			}
 			if (target != ((ChordProtocol) node.getProtocol(pid)).chordId) {  // message 未达到目标节点
 				// funzione lookup sulla fingertabable
@@ -114,8 +123,63 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 					fails++;
 				}
 				else {                                     //否则继续往后寻找
-					t.send(message.getSender(), dest, message, pid);
+					
+					int random = (CommonState.r.nextInt())%10;
+					if (random < 0) random = -random;
+					if ((random) < (10*this.drop_message_rate))
+					{
+						fails++;
+					}
+					else
+					{
+						t.send(message.getSender(), dest, message, pid);
+						flag = true;
+					}
 				}
+			}
+			
+			if (flag)
+			{
+				if ((message.hops_index == 1)&&(Flag.look_ahead_level >= 0)) 
+				{
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_pos();
+				}
+				if ((message.hops_index == 2)&&(Flag.look_ahead_level >= 1))
+				{
+					BigInteger pre_chordId = ((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).chordId;
+					((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).trust.get(pre_chordId).increase_blf_pos();
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_pos();
+				}
+				if ((message.hops_index == 3)&&(Flag.look_ahead_level >= 2))
+				{
+					BigInteger pre_chordId = ((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).chordId;
+					BigInteger pre_pre_chordId = ((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).chordId;
+					((ChordProtocol)message.hops[message.hops_index-3].getProtocol(pid)).trust.get(pre_pre_chordId).increase_blf_pos();
+					((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).trust.get(pre_chordId).increase_blf_pos();
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_pos();
+				}
+				if(Flag.look_ahead_level >= 0) message.add_hop(node);
+			}else
+			{
+				if ((message.hops_index == 1)&&(Flag.look_ahead_level >= 0)) 
+				{
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_neg();
+				}
+				if ((message.hops_index == 2)&&(Flag.look_ahead_level >= 1))
+				{
+					BigInteger pre_chordId = ((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).chordId;
+					((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).trust.get(pre_chordId).increase_blf_neg();
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_neg();
+				}
+				if ((message.hops_index == 3)&&(Flag.look_ahead_level >= 2))
+				{
+					BigInteger pre_chordId = ((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).chordId;
+					BigInteger pre_pre_chordId = ((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).chordId;
+					((ChordProtocol)message.hops[message.hops_index-3].getProtocol(pid)).trust.get(pre_pre_chordId).increase_blf_neg();
+					((ChordProtocol)message.hops[message.hops_index-2].getProtocol(pid)).trust.get(pre_chordId).increase_blf_neg();
+					((ChordProtocol)message.hops[message.hops_index-1].getProtocol(pid)).trust.get(chordId).increase_pfm_neg();
+				}
+				if(Flag.look_ahead_level >= 0) message.add_hop(node);
 			}
 		}
 		if (event.getClass() == FinalMessage.class) {
@@ -263,7 +327,67 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 		}
 		return successorList[0];
 	}
-
+	
+	
+	public double find_biggest_trust_in_pfm(Node n,BigInteger tarId,int level)  //未加入对finger在线的判断
+	{
+		if (level == 0)
+		{
+			double Max =0;
+			for (int i=m;i>0;i--)
+			{
+				BigInteger thisId = ((ChordProtocol) (n.getProtocol(p.pid))).chordId;
+				BigInteger fingerId = ((ChordProtocol) (((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[i - 1].getProtocol(p.pid))).chordId;
+				if ((idInab(fingerId, thisId, tarId))  // this.chordId < fingerId <= id
+						|| (tarId.compareTo(fingerId) == 0))
+				{
+					int cnt =0;
+					int index = i-1;
+					Max = ((ChordProtocol) (n.getProtocol(p.pid))).trust.get(fingerId).get_trust_in_pfm();
+					if (tarId.compareTo(fingerId) == 0) return 1.0;
+					while ((cnt < Flag.K)&&(index > 0))
+					{
+						BigInteger fingerId_next = ((ChordProtocol) (((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[index - 1].getProtocol(p.pid))).chordId;
+						double candidate = ((ChordProtocol) (n.getProtocol(p.pid))).trust.get(fingerId_next).get_trust_in_pfm();
+						if (Max < candidate) Max = candidate;
+						cnt++;
+						index --;
+					}
+					
+					return Max;
+					
+				}
+			}
+		}else //level == 1;
+		{
+			double Max = 0;
+			for (int i=m;i>0;i--)
+			{
+				BigInteger thisId = ((ChordProtocol) (n.getProtocol(p.pid))).chordId;
+				BigInteger fingerId = ((ChordProtocol) (((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[i - 1].getProtocol(p.pid))).chordId;
+				if ((idInab(fingerId, thisId, tarId))
+						|| (tarId.compareTo(fingerId) == 0))
+				{
+					int cnt =0;
+					int index = i-1;
+					Max = ((ChordProtocol) (n.getProtocol(p.pid))).trust.get(fingerId).get_trust_in_blf() * find_biggest_trust_in_pfm(((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[i-1],tarId,0);
+					while ((cnt < Flag.K)&&(index > 0))
+					{
+						BigInteger fingerId_next = ((ChordProtocol) (((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[index - 1].getProtocol(p.pid))).chordId;
+						double candidate = ((ChordProtocol) (n.getProtocol(p.pid))).trust.get(fingerId_next).get_trust_in_blf() * find_biggest_trust_in_pfm(((ChordProtocol) (n.getProtocol(p.pid))).fingerTable[index-1],tarId,0);
+						if (Max < candidate) Max = candidate;
+						cnt++;
+						index --;
+					}
+					
+					return Max;
+				}
+			}
+			
+		}
+		
+		return 0;
+	}
 	//返回 id 之前最近的finger
 	private Node closest_preceding_node(BigInteger id) {
 		for (int i = m; i > 0; i--) {  // 下标   m-1 downto 0
@@ -280,7 +404,67 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 						.getProtocol(p.pid))).chordId;
 				if ((idInab(fingerId, this.chordId, id))  // this.chordId < fingerId <= id
 						|| (id.compareTo(fingerId) == 0)) {
-					return fingerTable[i - 1];
+					
+					Node candidate = fingerTable[i-1];
+					int cnt = 0;
+					int index = i-1;	
+					if (id.compareTo(fingerId) == 0) return fingerTable[i - 1];
+					if (Flag.look_ahead_level == -1) return fingerTable[i - 1];
+					if (Flag.look_ahead_level == 0)
+					{
+						
+						while ((cnt < Flag.K)&&(index > 0))
+						{
+						
+							if (trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() <  
+							    trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm())  //此处未加入对finger在线的判断 
+								candidate = fingerTable[index - 1];
+							cnt++;
+							index--;
+						}
+					}
+					
+					if (Flag.look_ahead_level == 1)
+					{
+						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0);
+						while ((cnt < Flag.K)&&(index > 0))
+						{
+							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,0)) > trust_in_candidate)
+							{
+								candidate = fingerTable[index-1];
+								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0);
+							}
+							cnt++;
+							index--;
+						}
+					}
+					
+					if (Flag.look_ahead_level == 2)
+					{
+						//find_biggest_trust_in_pfm(fingerTable[index-1],id,0) + find_biggest_trust_in_pfm(fingerTable[index-1],id,1);
+						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) +
+								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,1);
+						while ((cnt < Flag.K)&&(index > 0))
+						{
+							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,0)) +
+							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,1) > trust_in_candidate)
+							{
+								candidate = fingerTable[index-1];
+								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) +
+										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,1);
+							}
+							cnt++;
+							index--;
+						}
+					}
+					
+					return candidate;
 				}
 				
 				/*原为
