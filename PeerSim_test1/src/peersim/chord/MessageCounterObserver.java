@@ -68,7 +68,7 @@ public class MessageCounterObserver implements Control {
 		
 		double media = meanCalculator(hopCounters);
 		if (media > 0)
-			System.out.println(media);
+			System.out.println(hopCounters.size());
 		//	System.out.println("Hops-- Mean: " + media + " Max Value: " + max
 		//			+ " Min Value: " + min + " # Observations: "
 		//			+ hopCounters.size());

@@ -426,15 +426,15 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 					
 					if (Flag.look_ahead_level == 1)
 					{
-						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
 								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0);
 						while ((cnt < Flag.K)&&(index > 0))
 						{
-							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
 							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,0)) > trust_in_candidate)
 							{
 								candidate = fingerTable[index-1];
-								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
+								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
 										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0);
 							}
 							cnt++;
@@ -445,18 +445,18 @@ public class ChordProtocol implements CDProtocol,EDProtocol {
 					if (Flag.look_ahead_level == 2)
 					{
 						//find_biggest_trust_in_pfm(fingerTable[index-1],id,0) + find_biggest_trust_in_pfm(fingerTable[index-1],id,1);
-						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
-								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) +
+						double trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
+								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) *
 								trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,1);
 						while ((cnt < Flag.K)&&(index > 0))
 						{
-							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
-							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,0)) +
+							if ((trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
+							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,0)) *
 							trust.get(((ChordProtocol) (fingerTable[index-1].getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(fingerTable[index-1],id,1) > trust_in_candidate)
 							{
 								candidate = fingerTable[index-1];
-								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() + 
-										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) +
+								trust_in_candidate = trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_pfm() * 
+										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,0) *
 										trust.get(((ChordProtocol) (candidate.getProtocol(p.pid))).chordId).get_trust_in_blf()*find_biggest_trust_in_pfm(candidate,id,1);
 							}
 							cnt++;
